@@ -1,6 +1,6 @@
 require('@babel/register')
 const { alchemy } = require('./secrets')
-const HDWalletProvider = require('truffle-hdwallet-provider')
+const HDWalletProvider = require('@truffle/hdwallet-provider')
 
 // this mnemonic is used to generate accounts (address, public & priv keys)
 // used to "pay" for deployment of smart contract.
@@ -20,15 +20,19 @@ module.exports = {
       // in metamask with eth on it (the account we created with eth on rinkeby)
       // to connect to infura and make request through their node to publish
       // on rinkeby's testnet
-      provider: function () {
-        return new HDWalletProvider(mnemonic,
-          alchemy)
-      },
-      network_id: 4
+      provider: new HDWalletProvider({
+        mnemonic: {
+          phrase: mnemonic
+        },
+        providerOrUrl: alchemy
+      }),
+      network_id: 4,
+      gas: '4000000', // 4M
+      gasPrice: '20000000000' // 20gwei
     }
   },
-  contracts_directory: './contracts/',
-  contracts_build_directory: './abis/',
+  contracts_directory: './ethereum/contracts/',
+  contracts_build_directory: './ethereum/abis/',
   compilers: {
     solc: {
       optimizer: {

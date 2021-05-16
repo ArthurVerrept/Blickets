@@ -2,22 +2,23 @@ import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators'
 import { IRootStore } from './core/store'
 import { Contract } from 'web3-eth-contract'
 import Web3 from 'web3'
-import contractAbi from '../abis/Ticket.json'
+import contractAbi from '../ethereum/abis/Lottery.json'
+const abi: any = contractAbi.abi
 
 type DevTypes = {
   contractAddress: string
   isLocal: boolean
 }
 
-const { contractAddress, isLocal }:DevTypes = require('../development/contractAddress')
-const { alchemy } = require('../secrets')
+const { contractAddress }:DevTypes = require('../development/contractAddress')
+// const { alchemy } = require('../secrets')
 
 @Module({
   namespaced: true
 })
 // eslint-disable-next-line no-use-before-define
 export class helloWorldModule extends VuexModule<IRootStore> {
-    address: string = ''
+    account: string = ''
     tokenAddress: string = ''
     contract!: Contract
     balance: number | null = null
@@ -25,8 +26,8 @@ export class helloWorldModule extends VuexModule<IRootStore> {
     message: string = ''
 
     @Mutation
-    setAddress (address: string[]) {
-      this.address = address[0]
+    setAccounts (accounts: string[]) {
+      this.account = accounts[0]
     }
 
     @Mutation
@@ -56,37 +57,29 @@ export class helloWorldModule extends VuexModule<IRootStore> {
 
     @Action({ rawError: true })
     async linkMetaMask () {
-      console.log(isLocal)
-      if (isLocal === false) {
-        const web3 = new Web3(alchemy)
+      if (window.ethereum) {
+        const web3 = new Web3(window.ethereum)
+        window.ethereum.request({ method: 'eth_requestAccounts' })
+        const accounts = await web3.eth.getAccounts()
         this.context.commit('setWeb3', web3)
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        this.context.commit('setAddress', accounts)
+        this.context.commit('setAccounts', accounts)
       } else {
-        const web3 = new Web3(window.web3.currentProvider) as Web3
-        this.context.commit('setWeb3', web3)
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        this.context.commit('setAddress', accounts)
+        console.log('metamask not installed')
       }
     }
 
     @Action({ rawError: true })
     async getAccounts () {
-      if (this.address.length) {
-        const abi: any = contractAbi.abi
-        this.context.commit('setTokenAddress', contractAddress)
+      this.context.commit('setTokenAddress', contractAddress)
 
-        const balance = await this.web3.eth.getBalance(this.address)
-        this.context.commit('setBalance', parseInt(balance) / 1e18)
+      const balance = await this.web3.eth.getBalance(this.account)
+      this.context.commit('setBalance', parseInt(balance) / 1e18)
 
-        const contract = new this.web3.eth.Contract(abi, contractAddress)
-        this.context.commit('setContract', contract)
+      const contract = new this.web3.eth.Contract(abi, contractAddress)
+      this.context.commit('setContract', contract)
 
-        const message = await contract.methods.message().call()
-        console.log(message)
-        this.context.commit('setMessage', message)
-      } else {
-        throw new Error('Smart contract not deployed to detected network')
-      }
+      const message = await contract.methods.manager().call({ from: this.account })
+
+      this.context.commit('setMessage', message)
     }
 }

@@ -31,17 +31,20 @@ if you are planning to use the rinkeby network you can <strong>skip the deployme
 
 ### Locally:
 if you choose to host your contract locally please ensure that ganache is running before running this command.
+This uses the first account on your local ganache blockchain to deploy the contract
 ```bash
-# this uses the first account on your local ganache blockchain to 
-# deploy the contract
-> npm run deploy:local
+# this should be ran when first creating a contract
+> truffle migrate
+
+# this should be ran when updating a contract
+> truffle migrate --reset
 ```
 
 This command is locked to the owner of the command and so is only for arthur to remember it exists
 ### Rinkeby:
 ```bash
 # to deploy smart contract on rinkeby testnet
-> npm run deploy:rinkeby
+> truffle migrate --network rinkeby
 ```
 
 

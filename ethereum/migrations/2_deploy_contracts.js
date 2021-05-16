@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-undef
-const Ticket = artifacts.require('Ticket')
+const Lottery = artifacts.require('Lottery')
 
 module.exports = function (deployer) {
-  deployer.deploy(Ticket)
+  deployer.deploy(Lottery)
 }

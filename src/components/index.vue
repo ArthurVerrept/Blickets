@@ -1,13 +1,10 @@
 <template>
-  <v-container>
     <div>
-      <p>Account Address: {{address}} </p>
+      <p>Account Address: {{account}} </p>
       <p>Token Address: {{tokenAddress}} </p>
       <p>Balance: {{balance}} </p>
-      <p>message: {{message}} </p>
-      <!-- <p>Current Message: {{Message}} </p> -->
+      <p>manager: {{message}} </p>
     </div>
-  </v-container>
 </template>
 
 <script lang="ts">
@@ -20,7 +17,7 @@ import { Component, Prop } from 'vue-property-decorator'
 
 export default class HelloWorld extends Vue {
   @Prop()
-  address!: string
+  account!: string
 
   @Prop()
   tokenAddress!: string
