@@ -11,7 +11,6 @@ type DevTypes = {
 }
 
 const { contractAddress }:DevTypes = require('../development/contractAddress')
-// const { alchemy } = require('../secrets')
 
 @Module({
   namespaced: true
