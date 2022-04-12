@@ -3,12 +3,13 @@ pragma solidity >=0.7.5;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract EventFactory {
     address[] public deployedEvents;
 
-    function createEvent(string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost) public {
-        address newCampaign = address(new Event(_name, _eventName, _ticketAmount, _ticketPrice, _resaleCost, msg.sender));
+    function createEvent(string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost, string memory _tokenURI) public {
+        address newCampaign = address(new Event(_name, _eventName, _ticketAmount, _ticketPrice, _resaleCost, _tokenURI, msg.sender));
         deployedEvents.push(newCampaign);
     }
 
@@ -17,7 +18,7 @@ contract EventFactory {
     }
 }
 
-contract Event is ERC721 {
+contract Event is ERC721URIStorage {
     bool private locked;
     address payable public owner;
     string public eventName;
@@ -26,6 +27,7 @@ contract Event is ERC721 {
     uint public ticketResalePrice;
     uint public resaleCost;
     uint public ticketIdCounter;
+    string public tokenURI;
     uint[] public ticketsForSale;
     
     mapping(uint=>uint) indexOfAsset;
@@ -34,7 +36,7 @@ contract Event is ERC721 {
     uint[] private newTicketIds;
     uint[] private newTicketAmounts;
     
-    constructor (string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost, address _owner) payable ERC721(_name, "symbol") {
+    constructor (string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost, string memory _tokenURI, address _owner) payable ERC721(_name, "symbol") {
         // TODO: allow contract be setup with eth in already for resales
         // needs to be at least ticketAmount * ticketPrice + a lil bit for gas fees
         owner = payable(_owner);
@@ -44,10 +46,11 @@ contract Event is ERC721 {
         resaleCost = _resaleCost;
         ticketResalePrice = ticketPrice + resaleCost;
         ticketIdCounter = 0;
+        tokenURI = _tokenURI;
         locked = true;
     }
     
-    function buyTickets (uint purchaseAmount) public payable {
+    function buyTickets (uint purchaseAmount, string memory URI) public payable {
         // only let each client buy a certain amount of tickets
         require(purchaseAmount <= ticketAmount, "bought more than maximum amount of tickets");
         
@@ -58,7 +61,10 @@ contract Event is ERC721 {
         for (uint i = ticketIdCounter; i < ticketIdCounter + purchaseAmount; i++) {
             // safeMint mints tokens and if token already exists reverts
             _safeMint(msg.sender, i);
+            _setTokenURI(i, URI);
         }
+       
+
         
         // set ticket counter to correct amount
         ticketIdCounter = ticketIdCounter + purchaseAmount;
