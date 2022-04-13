@@ -50,7 +50,7 @@ contract Event is ERC721URIStorage {
         locked = true;
     }
     
-    function buyTickets (uint purchaseAmount, string memory URI) public payable {
+    function buyTickets (uint purchaseAmount) public payable {
         // only let each client buy a certain amount of tickets
         require(purchaseAmount <= ticketAmount, "bought more than maximum amount of tickets");
         
@@ -61,7 +61,7 @@ contract Event is ERC721URIStorage {
         for (uint i = ticketIdCounter; i < ticketIdCounter + purchaseAmount; i++) {
             // safeMint mints tokens and if token already exists reverts
             _safeMint(msg.sender, i);
-            _setTokenURI(i, URI);
+            _setTokenURI(i, tokenURI);
         }
        
 
