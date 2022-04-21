@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 contract EventFactory {
     address[] public deployedEvents;
 
-    function createEvent(string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost) public {
-        address newCampaign = address(new Event(_name, _eventName, _ticketAmount, _ticketPrice, _resaleCost, msg.sender));
+    function createEvent(string memory _name, string memory _symbol, uint _ticketAmount, uint _ticketPrice, uint _resaleCost) public {
+        address newCampaign = address(new Event(_name, _symbol, _ticketAmount, _ticketPrice, _resaleCost, msg.sender));
         deployedEvents.push(newCampaign);
     }
 
@@ -21,7 +21,6 @@ contract EventFactory {
 contract Event is ERC721URIStorage {
     bool private locked;
     address payable public owner;
-    string public eventName;
     uint public ticketAmount;
     uint public ticketPrice;
     uint public ticketResalePrice;
@@ -35,11 +34,10 @@ contract Event is ERC721URIStorage {
     uint[] private newTicketIds;
     uint[] private newTicketAmounts;
     
-    constructor (string memory _name, string memory _eventName, uint _ticketAmount, uint _ticketPrice, uint _resaleCost, address _owner) payable ERC721(_name, "symbol") {
+    constructor (string memory _name, string memory _symbol, uint _ticketAmount, uint _ticketPrice, uint _resaleCost, address _owner) payable ERC721(_name, _symbol) {
         // TODO: allow contract be setup with eth in already for resales
         // needs to be at least ticketAmount * ticketPrice + a lil bit for gas fees
         owner = payable(_owner);
-        eventName = _eventName;
         ticketAmount = _ticketAmount;
         ticketPrice = _ticketPrice;
         resaleCost = _resaleCost;
