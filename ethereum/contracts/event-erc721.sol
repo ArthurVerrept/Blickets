@@ -146,6 +146,11 @@ contract Event is ERC721URIStorage {
     function getTicketsForSale () public view returns (uint[] memory){
         return ticketsForSale;
     }
+
+    function payout () public onlyOwner returns(bool res) {
+        owner.transfer(address(this).balance);
+        return true;
+    }
     
     
     
@@ -184,5 +189,5 @@ contract Event is ERC721URIStorage {
         require(msg.sender == owner);
         // Otherwise, it continues.
         _;                              
-    } 
+    }
 }
